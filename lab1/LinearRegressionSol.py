@@ -28,12 +28,16 @@
 # Once you think you've got it, begin to test your implementation by running 
 # the cells in `handout.ipynb`. 
 
+# ------------------------
+# SAMPLE SOLUTION
+# ------------------------            
 
 import numpy as np
 import warnings
 
 
 class LinearRegression1D:
+    
     '''
     A simple model of a linear relationship between a vector x of predictor data and a vector y of target data. 
     
@@ -53,9 +57,12 @@ class LinearRegression1D:
     # GROUP A
     # -----------------------------------
     
-    def __init__(self, learning_rate, max_iter, tol):
-        pass 
-    
+    def __init__(self, learning_rate, max_iter,  tol):
+        self.beta          = np.random.rand(2)
+        self.max_iter      = max_iter
+        self.learning_rate = learning_rate
+        self.tol           = tol
+        
     def predict(self, x):
         """
         Form predictions from predictor data using a 1D linear model. 
@@ -69,7 +76,7 @@ class LinearRegression1D:
             ŷᵢ = β₀ + β₁xᵢ
          
         """
-        pass
+        return self.beta[1]*x + self.beta[0]
     
     def mse(self, x, y):
         """
@@ -88,12 +95,13 @@ class LinearRegression1D:
             where ŷ is calculated from LinearRegression1D.predict(x)
         
         """
-        pass
+        y_pred = self.predict(x)
+        return ((y - y_pred)**2).mean()
     
     # -----------------------------------
     # GROUP B
     # -----------------------------------
-        
+    
     def gradient(self, x_train, y_train):
         """
         Calculate the gradient of the mean-square error (MSE) when using x_train to predict y_train with respect to the model parameters beta. 
@@ -107,8 +115,13 @@ class LinearRegression1D:
             grad np.ndarray of shape (2,), the gradient of the MSE with respect to the parameters beta[0] and beta[1]. grad[0] is the derivative of the MSE with respect to beta[0], and grad[1] is the derivative of the MSE with respect to beta[1]. NOTE: these can be calculated by hand. 
         
         """
-        pass 
-
+        y_pred = self.predict(x_train)
+        grad = 2*np.array([
+             (y_pred - y_train).mean(),
+            ((y_pred - y_train)*x_train).mean()
+        ])
+        return grad
+    
     # -----------------------------------
     # GROUP C
     # -----------------------------------
@@ -138,7 +151,15 @@ class LinearRegression1D:
                 1. If the maximum number of iterations is reached (according to max_iter), then stop and raise a warning to the user that the maximum number of iterations was reached and that the model fit may not be optimal. 
                 2. If the sum of the absolute values of the entries of the gradient is below self.tol, then stop without a warning. 
         """
-        pass 
+        i = 0
+        while i <= self.max_iter:
+            grad = self.gradient(x_train, y_train)
+            if np.abs(grad).sum() < self.tol: 
+                break
+ 
+            self.beta -= self.learning_rate*grad
+            i += 1
         
-                
-                
+        if i > self.max_iter: 
+            warnings.warn("Maximum number of iterations reached, model fit may be poor.")
+           
